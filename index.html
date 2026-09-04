@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>神羅テクノロジー 応募テスト</title>
+    <style>
+        /* ちょっとカッコいいモノトーン風のデザインにしておきました */
+        body { font-family: sans-serif; background: #111; color: #fff; padding: 40px; }
+        .box { max-width: 400px; margin: 0 auto; background: #222; padding: 20px; border-radius: 8px; }
+        input, textarea, button { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: none; box-sizing: border-box; }
+        input, textarea { background: #333; color: #fff; }
+        button { background: #0076ff; color: #fff; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0053b3; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>神羅テクノロジー 応募フォーム</h2>
+    
+    <input type="text" id="name" placeholder="お名前">
+    <input type="text" id="position" placeholder="希望ポジション">
+    <input type="text" id="github" placeholder="GitHub URL">
+    <textarea id="message" placeholder="メッセージ"></textarea>
+    
+    <!-- ボタンが押されたら下のJavaScriptが動きます -->
+    <button onclick="sendToDiscord()">応募する</button>
+</div>
+
+<script>
+// ボタンが押されたらここが動く（ブラウザ専用なので document が100%動きます）
+async function sendToDiscord() {
+    // 1. 画面の入力欄から文字を回収する
+    const nameData = document.getElementById('name').value;
+    const positionData = document.getElementById('position').value;
+    const githubData = document.getElementById('github').value;
+    const messageData = document.getElementById('message').value;
+
+    // 2. Discordに送るメッセージの形を整える
+    const discordPayload = {
+        username: "神羅テクノロジー 採用Bot",
+        embeds: [{
+            title: "🚨 新しいメンバー応募が届きました！",
+            color: 3447003,
+            fields: [
+                { name: "お名前", value: nameData || "未入力" },
+                { name: "希望ポジション", value: positionData || "未入力" },
+                { name: "GitHub / SNS", value: githubData || "未入力" },
+                { name: "メッセージ", value: messageData || "未入力" }
+            ],
+            timestamp: new Date().toISOString()
+        }]
+    };
+
+    // 🚨 【最重要】ここにDiscordで取得したあなたのWebhook URLを貼り付けてください！
+    const webhookUrl = 'https://discordapp.com/api/webhooks/1545395008251629639/l5RCwPhfet-epcNKNFqf170d_9xP8xwkRhG-qmhff-SCGy4VNC8zVv0xHGCGjOxEoZN4';
+
+    // 3. ブラウザからDiscordへデータを直接ブチ込む
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(discordPayload)
+        });
+
+        if (response.ok) {
+            alert('Discordへの送信に成功しました！チャンネルを確認してね！');
+        } else {
+            alert('Discordが拒否しました。URLが正しいか確認してください。');
+        }
+    } catch (error) {
+        console.error('通信エラー:', error);
+        alert('エラーが発生しました。ブラウザの開発者ツール（F12）のコンソールを見てみてね。');
+    }
+}
+</script>
+
+</body>
+</html>
